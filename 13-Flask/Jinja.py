@@ -27,14 +27,22 @@ def resultDis(score):
     return render_template('resultPage.html', result = res) #I need to pass as a new variable, html file wont take an py variable
 
 @app.route("/successres/<int:score>")
-def resultDis(score):
+def succres(score):
     res = ""
     if score>=50:
         res = "passed"
     else:
         res = "failed"
+
+    dict = {'score':score, 'result':res}
     
-    return render_template('resultPage.html', result = res) #I need to pass as a new variable, html file wont take an py variable
+    return render_template('resultPage1.html', result = dict) #I need to pass as a new variable, html file wont take an py variable
+
+@app.route("/resultif/<int:score>")
+def resif(score):
+
+    
+    return render_template('resultPage2.html', result = score) #I need to pass as a new variable, html file wont take an py variable
 
 
 
