@@ -1,32 +1,66 @@
-from flask import Flask, render_template, request
-#request is how Flask looks at what came from the HTML page (the browser).
+### Building Url Dynamically
+## Variable Rule
+### Jinja 2 Template Engine
+
+### Jinja2 Template Engine
+'''
+{{  }} expressions to print output in html
+{%...%} conditions, for loops
+{#...#} this is for comments
+'''
+from flask import Flask, render_template, request, url_for, redirect
 
 app = Flask(__name__)
 
 @app.route("/")
 def welcome():
-    return "First welcome page"
+    return "this will be my first page"
 
-@app.route("/base", methods =['GET'])
-def base():
-    return render_template('base.html')
+@app.route("/resultPage/<int:score>")
+def resultDis(score):
+    res = ""
+    if score>=50:
+        res = "passed"
+    else:
+        res = "failed"
+    
+    return render_template('resultPage.html', result = res) #I need to pass as a new variable, html file wont take an py variable
 
+@app.route("/successres/<int:score>")
+def succres(score):
+    res = ""
+    if score>=50:
+        res = "passed"
+    else:
+        res = "failed"
 
-#here the request.form gets me the value of variable and /form takes that from where to take this 
+    dict = {'score':score, 'result':res}
+    
+    return render_template('resultPage1.html', result = dict) #I need to pass as a new variable, html file wont take an py variable
 
-@app.route("/form", methods=['GET', 'POST'])
-def form():
+@app.route("/resultif/<int:score>")
+def resif(score):
+
+    
+    return render_template('resultPage2.html', result = score) #I need to pass as a new variable, html file wont take an py variable
+
+@app.route('/submit',methods=['POST','GET'])
+def submit():
+    total_score=0
     if request.method=='POST':
-        name = request.form['name']
-        return f'Hello {name}'
-    return render_template('form.html')
+        science=float(request.form['science'])
+        maths=float(request.form['maths'])
+        c=float(request.form['c'])
+        data_science=float(request.form['datascience'])
 
-# @app.route("/submit", methods=['GET', 'POST'])
-# def submit():
-#     if request.method=='POST':
-#         name = request.form['name']
-#         return f'Hello {name}'
-#     return render_template('form.html')
+        total_score=(science+maths+c+data_science)/4
+    else:
+        return render_template('getresult.html')
+    return redirect(url_for('succres',score=total_score))
+
+#successres gave ERRROR why ?? because   
+#In url_for, you give the function name (endpoint name), not the URL path.
+
 
 
 if __name__ == "__main__":
