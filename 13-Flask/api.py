@@ -28,7 +28,8 @@ def itemby_id(item_id):
     return jsonify(item)
 
 
-#create new 
+#create new - POST API
+#so using POSTMAN, we do POST request and provide with name and description and it appends the items
 @app.route('/items', methods=["POST"])
 def add_item():
     if not request.json or not 'name' in request.json:
@@ -42,6 +43,7 @@ def add_item():
     return jsonify(new_item)
 
 #updating existing
+#likewise, we provide with an id and it updates the name and description for the id via postman
 @app.route('/items/<int:item_id>', methods=['PUT'])
 def update_item(item_id):
     item = next((x for x in items if x["id"]==item_id), None)
