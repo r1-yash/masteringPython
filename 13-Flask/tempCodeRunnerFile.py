@@ -1,65 +1,62 @@
-### Building Url Dynamically
-## Variable Rule
-### Jinja 2 Template Engine
+from flask import Flask, jsonify, request
 
-### Jinja2 Template Engine
-'''
-{{  }} expressions to print output in html
-{%...%} conditions, for loops
-{#...#} this is for comments
-'''
-from flask import Flask, render_template, request, url_for, redirect
 
-app = Flask(__name__)
+app= Flask(__name__)
 
-@app.route("/")
-def welcome():
-    return "this will be my first page"
+items = [
+    {"id":1, "name":"Item 1", "description":"This is first task"},
+    {"id":2, "name":"Item 2", "description":"This is second task"}
+]
 
-@app.route("/resultPage/<int:score>")
-def resultDis(score):
-    res = ""
-    if score>=50:
-        res = "passed"
-    else:
-        res = "failed"
-    
-    return render_template('resultPage.html', result = res) #I need to pass as a new variable, html file wont take an py variable
 
-@app.route("/successres/<int:score>")
-def succres(score):
-    res = ""
-    if score>=50:
-        res = "passed"
-    else:
-        res = "failed"
+@app.route('/')
+def home():
+    return "Welcome To The Sample To DO List App"
 
-    dict = {'score':score, 'result':res}
-    
-    return render_template('resultPage1.html', result = dict) #I need to pass as a new variable, html file wont take an py variable
 
-@app.route("/resultif/<int:score>")
-def resif(score):
+#get and retrieve all items
+@app.route("/items", methods=["GET"])
+def get_tems():
+    return jsonify(items)
 
-    
-    return render_template('resultPage2.html', result = score) #I need to pass as a new variable, html file wont take an py variable
+#item by id
+@app.route("/items/<int:item_id>", methods=["GET"])
+def itemby_id(item_id):
+    item = next((x for x in items if item_id==x["id"]), None)
+    if item is None:
+        return jsonify({"Error: no such item found"})
+    return jsonify(item)
 
-@app.route('/submit',methods=['POST','GET'])
-def submit():
-    total_score=0
-    if request.method=='POST':
-        science=float(request.form['science'])
-        maths=float(request.form['maths'])
-        c=float(request.form['c'])
-        data_science=float(request.form['datascience'])
 
-        total_score=(science+maths+c+data_science)/4
-    else:
-        return render_template('getresult.html')
-    return redirect(url_for('succres',score=total_score))
+#create new 
+@app.route('/items', methods=["POST"])
+def add_item():
+    if not request.json or not 'name' in request.json:
+        return jsonify({"No item"})
+    new_item={
+        "id": items[-1]["id"]+1 if items else 1,
+        "name":request.json['name'],
+        "description":request.json['description']
+    }
+    items.append(new_item)
+    return jsonify(new_item)
 
-#successres gave ERRROR why ?? because   
-#In url_for, you give the function name (endpoint name), not the URL path.
+#updating existing
+@app.route('/items/<int:item_id>', methods=['PUT'])
+def update_item(item_id):
+    item = next((x for x in items if x["id"]==item_id), None)
+    if item is None:
+        return jsonify ({"Errornot found"})
+    item['name'] = request.json.get('name', item['name'])
+    item['description'] = request.json.get('description', item['description'])
+    return jsonify(item)
+
+#delete
+@app.route('/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    global item
+    items = [x for x in items if x["id"]!=item_id]
+    return jsonify({"result": "Item deleted"})
 
 
 

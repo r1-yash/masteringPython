@@ -4,8 +4,8 @@ from flask import Flask, jsonify, request
 app= Flask(__name__)
 
 items = [
-    {"id":1, "name":"Item 1", "descrition":"This is first task"},
-    {"id":2, "name":"Item 2", "descrition":"This is second task"}
+    {"id":1, "name":"Item 1", "description":"This is first task"},
+    {"id":2, "name":"Item 2", "description":"This is second task"}
 ]
 
 
@@ -20,9 +20,9 @@ def get_tems():
     return jsonify(items)
 
 #item by id
-@app.route("/item/<int:item_id>", methods=["GET"])
+@app.route("/items/<int:item_id>", methods=["GET"])
 def itemby_id(item_id):
-    item = next(x for x in items if item_id==x["id"])
+    item = next((x for x in items if item_id==x["id"]), None)
     if item is None:
         return jsonify({"Error: no such item found"})
     return jsonify(item)
@@ -44,10 +44,19 @@ def add_item():
 #updating existing
 @app.route('/items/<int:item_id>', methods=['PUT'])
 def update_item(item_id):
-    item = next((x for x in items if x[id]==item_id), None)
+    item = next((x for x in items if x["id"]==item_id), None)
     if item is None:
         return jsonify ({"Errornot found"})
-    
+    item['name'] = request.json.get('name', item['name'])
+    item['description'] = request.json.get('description', item['description'])
+    return jsonify(item)
+
+#delete
+@app.route('/items/<int:item_id>', methods=['DELETE'])
+def delete_item(item_id):
+    global item
+    items = [x for x in items if x["id"]!=item_id]
+    return jsonify({"result": "Item deleted"})
 
 
 
